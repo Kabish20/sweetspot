@@ -23,9 +23,30 @@ class CustomerSerializer(serializers.ModelSerializer):
 
 
 class CakeSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    
     class Meta:
         model = Cake
-        fields ='__all__'   
+        fields = '__all__'
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image.url)
+            return obj.image.url
+        
+        # Return placeholder image URL if no image is set
+        # Using Unsplash placeholder service for demo
+        placeholder_images = [
+            'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1606312619070-d48b4bdc5e3b?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1603532648955-039310d9ed75?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1565958011703-14f05864507a?w=400&h=400&fit=crop',
+            'https://images.unsplash.com/photo-1563805042-7688c019e1cb?w=400&h=400&fit=crop',
+        ]
+        # Use cake ID to consistently assign placeholder
+        return placeholder_images[obj.id % len(placeholder_images)]   
 
 
 class CakeCustomizationSerializer(serializers.ModelSerializer):
